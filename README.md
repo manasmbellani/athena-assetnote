@@ -9,3 +9,4 @@ https://urldefense.proofpoint.com/v2/url?u=https-3A__-257B0-257D.assetnotecloud.
 ```
 "https://{}.assetnotecloud.com/api/v2/graphql".format(INSTANCE)
 ```
+* For building Assetnote Graphql searches, utilize the 'Network' tab in Chrome to see what queries is being made by the website.
