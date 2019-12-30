@@ -107,7 +107,7 @@ while total is None or total == 100:
         json=dict(query=domain_query.format(page))
     ).json()
 
-    print(x)
+    print("response: " + x)
 
     nodes = x["data"]["domains"]["edges"]
 

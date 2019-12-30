@@ -10,3 +10,71 @@ https://urldefense.proofpoint.com/v2/url?u=https-3A__-257B0-257D.assetnotecloud.
 "https://{}.assetnotecloud.com/api/v2/graphql".format(INSTANCE)
 ```
 * For building Assetnote Graphql searches, utilize the 'Network' tab in Chrome to see what queries is being made by the website.
+* Working query:
+
+```
+query {{
+    assets(s:[{{rel:"assetGroup", field:"name", dir:ASC}}],count:2,page:1) {{
+        edges {{
+            node {{
+                ... on BaseAsset {{
+                    humanName,
+                    activeCnameRecordCount,
+                    exposureRating,
+                    hasUnmanagedExposures,
+                    activeARecordCount,
+                    onlinePortEntryCount,
+                    isOnline,
+                    onlineDnsEntryCount,
+                    onlineTechnologyCount,
+                    canBeMonitored,
+                    assetGroupId,
+                    assetGroupName,                                                         
+                    assetType,                                                              
+                    created,                                                                
+                    geoData {{                                                              
+                        id,                                                                 
+                        city,                                                               
+                        country                                                             
+                    }},                                                                     
+                    host,                                                                   
+                    id,                                                                     
+                    importance,                                                             
+                    isMonitored,                                                            
+                    lastUpdated,                                                            
+                    notificationsEnabled,                                                   
+                    parentName,                                                             
+                    risk,                                                                   
+                    verifiedStatus,                                                         
+                    assetGroup {{
+                        name
+                    }}                        
+                }}                            
+            }}                                
+        }},                                   
+        pageInfo {{                           
+            hasNextPage,
+            hasPreviousPage,
+            startCursor,
+            endCursor                         
+        }}                                    
+    }},                                       
+    exposures {{                              
+        edges {{                              
+            node {{                           
+                ... on BaseExposure {{
+                    id,
+                    name,
+                    exposureUrl
+                }}                            
+            }}                                
+        }},                                   
+        pageInfo {{                           
+            hasNextPage,
+            hasPreviousPage,
+            startCursor,
+            endCursor             
+        }}                         
+    }}                                    
+}}
+```

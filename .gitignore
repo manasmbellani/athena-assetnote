@@ -2,4 +2,5 @@
 **/out-*
 **/secret*
 **/demos2
-**/.swp
+**/*.swp
+**/test.py
