@@ -1,16 +1,29 @@
 # athena-assetnote
 
 ## Introduction
-Scripts to interact with Assetnote portal for asset discovery
+This project contains scripts to interact with Assetnote portal for asset discovery and exposures/indicators.
 
-## Notes:
-* URL Format in the Assetnote script is as follows:
-https://urldefense.proofpoint.com/v2/url?u=https-3A__-257B0-257D.assetnotecloud.com_api_v2_graphql-2522.format-28INSTANCE-29&d=DwIGAg&c=8bHjhITO0F85Cmi91C_4TA&r=QqfjnWA9BCxy5l6XlPCZsA2vjEkeSJcRyCWM1o_rcwk&m=vfNmfalqF6Up6dMPcBgZXtVxWC5e4HRbxPU1gfcHhU4&s=kVhc1vpZ4e-QBAAdADhlXqFG94SWOAAIInS8NB3AlBw&e=
+It will also be used in near-future to collaborate on building a splunk TA to integrate Assetnote with Splunk.
+
+## Scripts
+The following is a list of scripts available:
+
+* `get_assetnote_assets_exposures.py`: This script currently allows users to pull down assets and exposures in the given assetnote instance. 
+
+To run the script, use the following command:
+
 ```
-"https://{}.assetnotecloud.com/api/v2/graphql".format(INSTANCE)
+./get_assetnote_assets_exposures.py -lp 3 -i <instance-name> -ak <api-key> 
 ```
-* For building Assetnote Graphql searches, utilize the 'Network' tab in Chrome to see what queries is being made by the website.
-* Working query:
+
+Note that:
+* This will pull the first 3 pages of assets. To pull down all pages and all results, run `-lp 0` or omit `-lp` option altogether.
+* `<instance-name>` is typically the company name
+
+## Appendix
+
+### Notes:
+* An example of Working GraphQL query:
 
 ```
 query {{
