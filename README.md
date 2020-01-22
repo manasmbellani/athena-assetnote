@@ -5,6 +5,21 @@ This project contains scripts to interact with Assetnote portal for asset discov
 
 It will also be used in near-future to collaborate on building a splunk TA to integrate Assetnote with Splunk.
 
+## Setup
+
+Build a Docker container which contains all the necessary dependencies eg python3, jq for running the scripts
+
+To build the container from the Dockerfile, run the following commmands:
+```
+docker build -t athena-assetnote:latest .
+```
+
+Then run a container with the following command:
+```
+docker run -it -v /opt/athena-assetnote:/opt/athena-assetnote athena-assetnote /bin/bash
+```
+
+
 ## Scripts
 The following is a list of scripts available:
 
