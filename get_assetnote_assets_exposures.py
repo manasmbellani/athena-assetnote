@@ -3,10 +3,10 @@ import argparse
 import json
 import requests
 
-# Inputs
+# Graph Query templates to pull vulnerability and indicators
 EXPOSURES_GRAPHQL_QUERY_TEMPLATE = """
 query {{
-    exposures(s:[{{field:"name", dir:ASC}}],count:{page_count},page:{page_num}) {{
+    exposures(count:{page_count},page:{page_num}) {{
         edges {{
             node {{
                 ... on BaseExposure {{
@@ -26,7 +26,7 @@ query {{
                     severity,
                     severityNormalized,
                     signature {{
-                        ... on BaseExposureSiganture {{
+                        ... on HTTPSignature {{
                             categoryId,
                             categoryName,
                             created,
@@ -73,6 +73,8 @@ query {{
 }}
 """
 
+# Graphql Query template to pull down assets. {page_count} is set and {page_num} is incremented
+# to pull down the assets listing
 ASSETS_GRAPHQL_QUERY_TEMPLATE = """
 query {{
     assets(s:[{{rel:"assetGroup", field:"name", dir:ASC}}],count:{page_count},page:{page_num}) {{
@@ -254,7 +256,7 @@ def verbose(args, msg):
     if args['verbose']:
         print("[*] " + msg.format(**args))
 
-def error(msg):
+def error(args, msg):
     """
     Print an error message
 
@@ -281,8 +283,10 @@ def main():
                         help="Number of items to provide per page count")
     parser.add_argument("-lp", "--limit-pages-returned", default=0,
                         help="Limit the number of pages returned. If set to 0 or less, no limit.")
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="More verbose Debugging output")
+    parser.add_argument("-sa", "--skip-assets", action="store_true",
+                        help="Skip assets export")
+    parser.add_argument("-se", "--skip-exposures", action="store_true",
+                        help="Skip exposures export")
     args = vars(parser.parse_args())
     
     info(args, "Validing the value of 'limit_pages_returned' argument...")
@@ -292,70 +296,126 @@ def main():
         error(args, "Invalid value for limit pages returned provided, defaulting to 0...")
         args['limit_pages_returned'] = 0
 
-    info(args, "Requesting assets for instance: {instance} page-wise...")
-    assets = []
-    get_next_page = True
-    args['page_num'] = 1
-    while get_next_page:
-        
-        info(args, "Requesting page: {page_num}...")
-        graphql_query = ASSETS_GRAPHQL_QUERY_TEMPLATE.format(**args)
-        try:
-            resp = requests.post(
-                        "https://{instance}.assetnotecloud.com/api/v2/graphql".format(**args),
-                        headers={
-                            "X-ASSETNOTE-API-KEY": "{api_key}".format(**args)
-                        }, json=dict(query=graphql_query)
-            )
-            status_code = resp.status_code
-            resp_json = resp.json()
+    if not args['skip_assets']:
 
-            with open('/tmp/test.json', 'w+') as f:
-                f.write(
-                        json.dumps(
-                                resp_json, 
-                                indent=4
-                            ) 
-                       )
-
-            info(args, "Checking if page: {page_num} obtained successfully...")
-            if status_code != 200 or "errors" in resp:
-                error(args, "Error encountered when retrieving page: {page_num}...")
-                error(args, "Error: ")
-                json.dumps(resp_json, indent=4)
+        info(args, "Requesting assets for instance: {instance} page-wise...")
+        assets = []
+        get_next_page = True
+        args['page_num'] = 1
+        while get_next_page:
+            
+            info(args, "Requesting page: {page_num} for assets...")
+            graphql_query = ASSETS_GRAPHQL_QUERY_TEMPLATE.format(**args)
+            try:
+                resp = requests.post(
+                            "https://{instance}.assetnotecloud.com/api/v2/graphql".format(**args),
+                            headers={
+                                "X-ASSETNOTE-API-KEY": "{api_key}".format(**args)
+                            }, json=dict(query=graphql_query)
+                )
+                status_code = resp.status_code
+                resp_json = resp.json()
+    
+                info(args, "Checking if page: {page_num} obtained successfully...")
+                if status_code != 200 or "errors" in resp_json:
+                    error(args, "Error encountered when retrieving page: {page_num}...")
+                    error(args, "Error: ")
+                    print(json.dumps(resp_json, indent=4))
+                    get_next_page = False
+    
+                else:
+    
+                    info(args, "Parsing page: {page_num} response for assets...")
+                    
+                    info(args, "Getting assets from the page...")
+                    assets_on_page = resp_json['data']['assets']['edges']
+                    for asset_on_page in assets_on_page:
+                        assets.append(asset_on_page)
+                        args['assets_count'] = len(assets)
+                    info(args, "Number of assets after page: {page_num} is: {assets_count}")
+    
+                    info(args, "Checking if another page exists from page: {page_num} response...")
+                    get_next_page = resp_json['data']['assets']['pageInfo']['hasNextPage']
+                    if get_next_page:
+                        args['page_num'] += 1
+                        if args['limit_pages_returned'] > 0:
+                            if int(args['page_num']) > args['limit_pages_returned']:
+                                info(args, "Stopping extraction of more pages as limit of number of pages to get hit...")
+                                get_next_page = False
+    
+    
+            except Exception as e:
+    
+                error(args, "Error encountered when requesting page: {page_num} for assets...")
+                error(args, str(e))
                 get_next_page = False
+    
+            info(args, "Writing assets to outfile: {outfile_assets}")
+            with open(args['outfile_assets'], "w+") as f:
+                f.write(json.dumps(assets, indent=4))
+    else:
+        info(args, "Skipping assets export as requested by user when invoking the script...")
 
-            else:
+    if not args['skip_exposures']:
 
-                info(args, "Parsing page: {page_num} response...")
-
+        info(args, "Requesting exposures for instance: {instance} page-wise...")
+        exposures = []
+        get_next_page = True
+        args['page_num'] = 1
+        while get_next_page:
+            
+            info(args, "Requesting page: {page_num} for exposures...")
+            graphql_query = EXPOSURES_GRAPHQL_QUERY_TEMPLATE.format(**args)
+            try:
+                resp = requests.post(
+                            "https://{instance}.assetnotecloud.com/api/v2/graphql".format(**args),
+                            headers={
+                                "X-ASSETNOTE-API-KEY": "{api_key}".format(**args)
+                            }, json=dict(query=graphql_query)
+                )
+                status_code = resp.status_code
+                resp_json = resp.json()
                 
-                info(args, "Getting assets from the page...")
-                assets_on_page = resp_json['data']['assets']['edges']
-                for asset_on_page in assets_on_page:
-                    assets.append(asset_on_page)
-                    args['assets_count'] = len(assets)
-                info(args, "Number of assets after page: {page_num} is: {assets_count}")
+                info(args, "Checking if page: {page_num} obtained successfully...")
+                if status_code != 200 or "errors" in resp_json:
+                    error(args, "Error encountered when retrieving page: {page_num} for exposures...")
+                    error(args, "Error: ")
+                    print(json.dumps(resp_json, indent=4))
+                    get_next_page = False
+    
+                else:
+    
+                    info(args, "Parsing page: {page_num} respons for exposurese...")
+    
+                    info(args, "Getting exposures from the page...")
+                    assets_on_page = resp_json['data']['exposures']['edges']
+                    for asset_on_page in assets_on_page:
+                        exposures.append(asset_on_page)
+                        args['exposures_count'] = len(exposures)
+                    info(args, "Number of assets after page: {page_num} is: {exposures_count}")
+    
+                    info(args, "Checking if another page exists from page: {page_num} response...")
+                    get_next_page = resp_json['data']['exposures']['pageInfo']['hasNextPage']
+                    if get_next_page:
+                        args['page_num'] += 1
+                        if args['limit_pages_returned'] > 0:
+                            if int(args['page_num']) > args['limit_pages_returned']:
+                                info(args, "Stopping extraction of more pages as limit of number of pages to get hit...")
+                                get_next_page = False
+    
+            except Exception as e:
+    
+                error(args, "Error encountered when requesting page: {page_num} for exposures...")
+                error(args, str(e))
+                get_next_page = False
+    
+            info(args, "Writing exposures to outfile: {outfile_exposures}")
+            with open(args['outfile_exposures'], "w+") as f:
+                f.write(json.dumps(exposures, indent=4))
 
-                info(args, "Checking if another page exists from page: {page_num} response...")
-                get_next_page = resp_json['data']['assets']['pageInfo']['hasNextPage']
-                if get_next_page:
-                    args['page_num'] += 1
-                    if args['limit_pages_returned'] > 0:
-                        if int(args['page_num']) > args['limit_pages_returned']:
-                            info(args, "Stopping extraction of more pages as limit of number of pages to get hit...")
-                            get_next_page = False
+    else:
+        info(args, "Skipping assets as requested by user when invoking the script...")
 
-
-        except Exception as e:
-
-            error(args, "Error encountered when requesting page: {page_num}")
-            error(args, str(e))
-            get_next_page = False
-
-        info(args, "Writing assets to outfile: {outfile_assets}")
-        with open(args['outfile_assets'], "w+") as f:
-            f.write(json.dumps(assets, indent=4))
 
 if __name__ == "__main__":
     main()
