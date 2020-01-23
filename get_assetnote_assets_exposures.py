@@ -173,13 +173,64 @@ query {{
                     }},
 	            host,
                     ... on IpAsset {{
-                        ipAddress
+                        ipAddress,
+                        technologies {{
+                            edges {{
+                                node {{
+                                    name
+                                }}
+                            }}
+                        }},
+                        services {{
+                            edges {{
+                                node {{
+                                    name,
+                                    port,
+                                    isActive,
+                                    lastActive
+                                }}
+                            }}
+                        }}
                     }},
                     ... on CloudAsset {{
-                        ipAddress
+                        ipAddress,
+                        technologies {{
+                            edges {{
+                                node {{
+                                    name
+                                }}
+                            }}
+                        }},
+                        services {{
+                            edges {{
+                                node {{
+                                    name,
+                                    port,
+                                    isActive,
+                                    lastActive
+                                }}
+                            }}
+                        }}
                     }},
                     ... on SubdomainAsset {{
-                       ipAddress 
+                       ipAddress,
+                       technologies {{
+                            edges {{
+                                node {{
+                                    name
+                                }}
+                            }}
+                        }},
+                        services {{
+                            edges {{
+                                node {{
+                                    name,
+                                    port,
+                                    isActive,
+                                    lastActive
+                                }}
+                            }}
+                        }}
                     }},
 	            id,
 	            importance,
