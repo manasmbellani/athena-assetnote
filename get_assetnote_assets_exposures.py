@@ -2,6 +2,7 @@
 import argparse
 import json
 import requests
+import time
 
 # Graph Query templates to pull vulnerability and indicators
 EXPOSURES_GRAPHQL_QUERY_TEMPLATE = """
@@ -304,7 +305,7 @@ def verbose(args, msg):
     msg: str
         Message to print
     """
-    if args['verbose']:
+    if 'verbose' in args:
         print("[*] " + msg.format(**args))
 
 def error(args, msg):
@@ -319,6 +320,20 @@ def error(args, msg):
         Message to print as error
     """
     print("[-] " + msg.format(**args))
+
+def sleep_time(args):
+    """
+    Sleep and let the user know that we are sleeping before making requests
+
+    Arguments
+    ---------
+    args: dict
+        Arguments provided by the user including sleep time
+    """
+    if 'sleep_time' in args:
+        sleep_time = int(args['sleep_time'])
+        info(args, "Sleeping for {sleep_time}s...".format(**args))
+        time.sleep(sleep_time)
 
 def main():
     parser = argparse.ArgumentParser(description="Script to pull down all assets and exposures in JSON and CSV format from Assetnote")
@@ -338,6 +353,8 @@ def main():
                         help="Skip assets export")
     parser.add_argument("-se", "--skip-exposures", action="store_true",
                         help="Skip exposures export")
+    parser.add_argument("-st", "--sleep-time", action="store", default="2",
+                        help="Sleep timeout between individual requests")
     args = vars(parser.parse_args())
     
     info(args, "Validing the value of 'limit_pages_returned' argument...")
@@ -404,6 +421,8 @@ def main():
             info(args, "Writing assets to outfile: {outfile_assets}")
             with open(args['outfile_assets'], "w+") as f:
                 f.write(json.dumps(assets, indent=4))
+            
+            sleep_time(args)
     else:
         info(args, "Skipping assets export as requested by user when invoking the script...")
 
@@ -463,6 +482,8 @@ def main():
             info(args, "Writing exposures to outfile: {outfile_exposures}")
             with open(args['outfile_exposures'], "w+") as f:
                 f.write(json.dumps(exposures, indent=4))
+            
+            sleep_time(args)
 
     else:
         info(args, "Skipping assets as requested by user when invoking the script...")
