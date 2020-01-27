@@ -7,6 +7,8 @@ It will also be used in near-future to collaborate on building a splunk TA to in
 
 ## Setup
 
+Note that the instructions below assume that `athena-assetnote` has been git cloned in the `/opt` directory on a Linux host.
+
 Build a Docker container which contains all the necessary dependencies eg python3, jq for running the scripts
 
 To build the container from the Dockerfile, run the following commmands:
@@ -18,7 +20,6 @@ Then run a container with the following command:
 ```
 docker run -it -v /opt/athena-assetnote:/opt/athena-assetnote athena-assetnote /bin/bash
 ```
-
 
 ## Scripts
 The following is a list of scripts available:
@@ -34,6 +35,26 @@ To run the script, use the following command:
 Note that:
 * This will pull the first 3 pages of assets. To pull down all pages and all results, run `-lp 0` or omit `-lp` option altogether.
 * `<instance-name>` is typically the company name
+
+## Splunk Add-On for AssetNote (Under Development)
+We are currently building a Splunk add-on for Assetnote while utilizing Splunk Add-On Builder app.
+
+### Dev Environment Setup
+To setup the dev environment, we do this via the Splunk Docker container which will run a Splunk environment locally on our system.
+
+The steps to setup the environment are taken from [here](https://hub.docker.com/r/splunk/splunk/#Quickstart). These are as follows:
+
+* Pull the Docker image
+
+```
+docker pull splunk/splunk:latest
+```
+
+* Build the container with password `Splunk123!`
+
+```
+docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=Splunk123!" --name splunk splunk/splunk:latest
+```
 
 ## Appendix
 
