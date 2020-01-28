@@ -1,4 +1,3 @@
-
 # encoding = utf-8
 
 import json
@@ -317,7 +316,7 @@ def collect_events(helper, ew):
             info(helper, all_params, "Error encountered when retrieving page: {page_num}...")
             info(helper, all_params, "Error: ")
             info(helper, all_params,
-                 str(json.dumps(resp_json, indent=4)))
+                 str(resp_json), format_params=False)
             get_next_page = False
         else:
 
@@ -339,6 +338,17 @@ def collect_events(helper, ew):
 
             info(helper, all_params,
                 "Checking if another page exists from page: {page_num} response...")
+                
+            info(helper, all_params, 
+                 "Calculating the number of assets in the page...")
+            args['asset_count_per_page'] = len(assets_per_page)
+            
+            info(helper, all_params, 
+                 "Writing all {asset_count_per_page} assets as an event...")
+            helper.new_event(json.dumps(assets_per_page, indent=4),
+                            index=all_params['assetnote_index'],
+                            sourcetype=all_params['assetnote_assets_sourcetype'])
+            
             get_next_page = resp_json['data']['assets']['pageInfo']['hasNextPage']
             if get_next_page:
                 all_params['page_num'] += 1
@@ -347,25 +357,9 @@ def collect_events(helper, ew):
                         info(helper, all_params, 
                         "Stopping extraction of more pages as limit of number of pages to get hit...")
                         get_next_page = False
-        
-        info(helper, all_params, 
-             "Calculating the number of assets in the page...")
-        args['asset_count_per_page'] = len(assets_per_page) 
-        
-        info(helper, all_params, 
-             "Writing all {asset_count_per_page} assets as an event...")
-        helper.new_event(json.dumps(assets_per_page, indent=4),
-                        index=all_params['assetnote_index'],
-                        sourcetype=all_params['assetnote_assets_sourcetype'])
                         
+            info(helper, all_params, 
+                 "Sleeping for {sleep_time}s before requesting next page...")
+            sleep_time(all_params)
 
-        info(helper, all_params, 
-             "Sleeping for {sleep_time}s before requesting next page...")
-        sleep_time(all_params)
-
-            #get_next_page = False
-        #except Exception as e:
-        #    info(helper, all_params, 
-        #        "Error encountered when requesting page: {page_num} for assets...")
-        #    info(helper, all_params, str(e))
-        
+                    
