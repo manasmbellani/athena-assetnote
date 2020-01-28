@@ -254,29 +254,6 @@ query {{
             startCursor,
             endCursor
         }}
-    }},
-    exposures {{
-        edges {{
-            node {{
-                ... on BaseExposure {{
-                    id,
-                    name,
-                    exposureUrl,
-                    asset {{
-                        ... on SubdomainAsset {{
-                            id,
-                            host
-                        }}
-                    }}
-                }}
-            }}
-        }},
-        pageInfo {{
-            hasNextPage,
-            hasPreviousPage,
-            startCursor,
-            endCursor
-        }}
     }}
 }}
 """

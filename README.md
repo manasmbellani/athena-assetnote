@@ -50,10 +50,10 @@ The steps to setup the environment are taken from [here](https://hub.docker.com/
 docker pull splunk/splunk:latest
 ```
 
-* Build the container with password `Splunk123!`
+* Build the container with password `Splunk123$`
 
 ```
-docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=Splunk123!" --name splunk splunk/splunk:latest
+docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=Splunk123$" --name splunk splunk/splunk:latest
 ```
 
 ## Appendix
