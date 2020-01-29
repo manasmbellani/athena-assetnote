@@ -22,29 +22,64 @@ docker run -it -v /opt/athena-assetnote:/opt/athena-assetnote athena-assetnote /
 ```
 
 ## Scripts
-The following is a list of scripts available:
+The following is a list of scripts available in this repository:
 
-* `get_assetnote_assets_exposures.py`: This script currently allows users to pull down assets and exposures in the given assetnote instance. 
+### get_assetnote_assets_exposures.py
+
+This script currently allows users to pull down assets and exposures in the given assetnote instance. 
 
 To run the script, use the following command:
 
 ```
-./get_assetnote_assets_exposures.py -lp 3 -i <instance-name> -ak <api-key> 
+./get_assetnote_assets_exposures.py -lp 3 -i <instance-name> -ak <api-key>
 ```
 
 Note that:
+
 * This will pull the first 3 pages of assets. To pull down all pages and all results, run `-lp 0` or omit `-lp` option altogether.
+* By default, the assets are written to the output file: `out-assetnote-assets.json` and the exposures are written to output file: `out-assetnote-exposures.json`
+
 * `<instance-name>` is typically the company name
 
-## Splunk Add-On for AssetNote (Under Development)
-We are currently building a Splunk add-on for Assetnote while utilizing Splunk Add-On Builder app.
+### list_assets_from_assetnote_json_extract.sh
 
-### Dev Environment Setup
+This script will read the JSON output of `./get_assetnote_assets_exposures.py` above and extract the list of all unique domains as a single list into an output CSV file.
+
+Example usage which reads the `out-assetnote-assets.json` file from a user and writes the output to `out-assetnote-asset.csv` file
+
+```
+./list_assets_from_assetnote_json_extract.sh out-assetnote-assets.json out-assetnote-assets.csv
+```
+
+## Splunk Add-On for AssetNote
+
+### Introduction
+
+A Splunk Technology add-on for Assetnote has been created using the Splunk Add-On Builder app from Splunk Marketplace.
+
+This Add-On communicates with Assetnote Cloud environment on a regular basis and collects information about all configured assets, and exposures from .
+
+CIM compliance has also been performed for field mappings. 
+
+### How it works?
+
+By Default, this Splunk add-on will connect to the Assetnote's GraphQL API to pull down assets and exposures info in JSON fromat on a frequency configured by the operator in a paginated fashion. The maximum page size by default is `20`. 
+
+The results are by default written to `assetnote_index` and the `.json` source types mentioned in sections below for exposures and assets.
+
+The Add-on will add each page of data retrieved as a single event, but default Splunk `json` setting may break each event into smaller, individual events. 
+
+### Splunk Add-On Installation
+
+#### Installing the Spunk Dev Environment (Optional)
+
 To setup the dev environment, we do this via the Splunk Docker container which will run a Splunk environment locally on our system.
+
+If you already have a live Splunk Instance, you do not have to perform this Splunk dev environment.
 
 The steps to setup the environment are taken from [here](https://hub.docker.com/r/splunk/splunk/#Quickstart). These are as follows:
 
-* Pull the Docker image
+* Pull Docker image
 
 ```
 docker pull splunk/splunk:latest
@@ -57,23 +92,52 @@ docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SP
 ```
 
 ### Splunk Add-On Steps
-* Install the Assetnote addon
 
-* Create an index called: `assetnote_index` in Splunk
+#### Install Splunk Add-On
 
-* Create a sourcetype called: `assetnote:assets:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `json`.
+* Obtain the latest copy of the Assetnote add-on from [here](https://github.com/manasmbellani/athena-assetnote/releases)
+* Install the Assetnote add-on by visiting `Apps: Drop-Down > Manage Apps > Install App from File`
 
-* Now configure a new input data collection in the Assetnote Add-On accessible from *Manage Apps* section
+#### Index Definition
 
-* Call it `assetnote_assets_python_script` and then configure the following: 
-    * Interval: 120
-    * Index: `assetnote_index`
-    * Assetnote Instance: `<instance-name-eg-demo>`
-    * Assetnote API Key: `ugwqx........==`
+* Now, create an index called: `assetnote_index` in Splunk from `Settings > Indexes` with default settings.
 
-* Enable the Data Input
+#### Sourcetypes Definition
 
-* Once completed, input will start coming into index: `assetnote_index` and sourcetype: `assetnote:assets:json`
+* Create a sourcetype from `Settings > Source Types` called: `assetnote:assets:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `json`.
+* Create a sourcetype from `Settings > Source Types` called: `assetnote:exposures:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `json`.
+
+#### Configuring Assetnote Add-On
+
+* Now visit the *Assetnote Add-On* page from the `Apps` drop-down.
+
+* Now `Create a New Input` called `Assetnote Graphql Input Python Script for Assets Collection`  for collecting Assets into Splunk.
+
+    * Enter the following details for the form provided:
+        * Name: `assetnote_python_assets_script`
+        * Interval: `120`
+        * Index: `assetnote_index`
+        * Assetnote Instance: `<instance-name-eg-demo>`
+        * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
+
+* Now `Create a New Input` called `Assetnote Graphql Input Python Script for Exposures Collection`  for collecting Exposures into Splunk.
+
+    * Enter the following details for the form provided:
+      * Name: `assetnote_python_exposures_script`
+      * Interval: `43200` . This is the frequency (in seconds) with which data collection should occur.
+      * Index: `assetnote_index`
+      * Assetnote Instance: `<instance-name-eg-demo>`
+      * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
+
+* Enable both data inputs 
+
+    * Once completed, info will flow into index: `assetnote_index` and sourcetype: `assetnote:assets:json2` for assets and `assetnote:exposures:json2` for exposures.
+
+* Run the following search to view the assetnote data:
+
+    ```
+    index=assetnote_index
+    ```
 
 ## Appendix
 
