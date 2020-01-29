@@ -362,7 +362,7 @@ def main():
                 resp_json = resp.json()
     
                 info(args, "Checking if page: {page_num} obtained successfully...")
-                if status_code != 200 or "errors" in resp_json:
+                if status_code != 200 or 'data' not in resp_json:
                     error(args, "Error encountered when retrieving page: {page_num}...")
                     error(args, "Error: ")
                     print(json.dumps(resp_json, indent=4))
