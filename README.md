@@ -141,8 +141,25 @@ docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SP
 
 ## Appendix
 
-### Notes:
-* An example of Working GraphQL query:
+This section contains misc information useful for development purposes. 
+
+It can be ignored by the consumers of the scripts and add-on.
+
+### Handy Search when building the Assetenote Add-on
+
+```
+index=_internal "Assetnote:INFO:"
+```
+
+### Opening source files via TextEdit
+
+```
+open -a TextEdit test.txt
+```
+
+
+
+### Example of Working GraphQL query
 
 ```
 query {{
