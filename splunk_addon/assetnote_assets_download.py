@@ -239,37 +239,26 @@ def use_single_instance_mode():
 
 def validate_input(helper, definition):
     """Implement your own validation logic to validate the input stanza configurations"""
-    # This example accesses the modular input variable
-    # assetnote_index = definition.parameters.get('assetnote_index', None)
-    # assetnote_assets_sourcetype = definition.parameters.get('assetnote_assets_sourcetype', None)
-    # assetnote_api_key = definition.parameters.get('assetnote_api_key', None)
     pass
 
-def sleep_time(all_params):
-    """
-    Sleep and let the user know that we are sleeping before making requests
-
-    Arguments
-    ---------
-    all_params: dict
-        Arguments provided by the user including sleep time
-    """
-    if 'sleep_time' in all_params:
-        sleep_time = int(all_params['sleep_time'])
-        info(helper, all_params, 
-            "Sleeping for {sleep_time}s...".format(**all_params))
-        time.sleep(sleep_time)
-
 def collect_events(helper, ew):
-    opt_assetnote_index = helper.get_arg('assetnote_index')
-    opt_assetnote_assets_sourcetype = helper.get_arg('assetnote_assets_sourcetype')
     opt_assetnote_api_key = helper.get_arg('assetnote_api_key')
     opt_assetnote_instance = helper.get_arg('assetnote_instance')
     
     # Add all the parameters in this config to be used for printing
     # and maintaining configuration
-    all_params = {'assetnote_index': opt_assetnote_index,
-                  'assetnote_assets_sourcetype': opt_assetnote_assets_sourcetype,
+    #all_params = {'assetnote_index': opt_assetnote_index,
+    #              'assetnote_sourcetype': opt_assetnote_sourcetype,
+    #              'assetnote_source': helper.get_input_type(),
+    #              'assetnote_api_key': opt_assetnote_api_key,
+    #              'assetnote_instance': opt_assetnote_instance,
+    #              'sleep_time': SLEEP_TIMEOUT_PER_PAGE,
+    #              'page_count': ASSETS_PER_PAGE_COUNT,
+    #              'limit_pages_returned': LIMIT_PAGES_RETURNED}
+    
+    all_params = {'assetnote_index': helper.get_output_index(),
+                  'assetnote_sourcetype': helper.get_sourcetype(),
+                  'assetnote_source': helper.get_input_type(),
                   'assetnote_api_key': opt_assetnote_api_key,
                   'assetnote_instance': opt_assetnote_instance,
                   'sleep_time': SLEEP_TIMEOUT_PER_PAGE,
@@ -278,7 +267,7 @@ def collect_events(helper, ew):
     
     # Printing all the current parameters to internal log
     msg = ("assetnote_index: {assetnote_index},"
-           "assetnote_assets_sourcetype: {assetnote_assets_sourcetype},"
+           "assetnote_sourcetype: {assetnote_sourcetype},"
            "assetnote_api_key: {assetnote_api_key},"
            "assetnote_instance: {assetnote_instance}")
     info(helper, all_params, msg)
@@ -288,51 +277,54 @@ def collect_events(helper, ew):
     assets = []
     get_next_page = True
     all_params['page_num'] = 1
+    
     while get_next_page:
 
         info(helper, all_params, 
              "Requesting page: {page_num} for assets from AssetNote...")
         graphql_query = ASSETS_GRAPHQL_QUERY_TEMPLATE.format(**all_params)
-        #try:
         url_to_call = "https://{assetnote_instance}.assetnotecloud.com/api/v2/graphql".format(**all_params)
         method = "POST"
         headers={
             "X-ASSETNOTE-API-KEY": "{assetnote_api_key}".format(**all_params)
         }
-        payload = json=dict(query=graphql_query)
-        verify = True
+        payload = dict(query=graphql_query)
         resp = helper.send_http_request(url=url_to_call,
                                         method=method, 
                                         payload=payload,
                                         headers=headers,
                                         verify=True)
         
+        info(helper, all_params, 
+             "Parsing response from page: {page_num} from AssetNote...")
         status_code = resp.status_code
         resp_json = resp.json()
 
         info(helper, all_params,
-        "Checking if page: {page_num} obtained successfully...")
-        if status_code != 200 or "error" in resp_json:
+            "Checking if page: {page_num} obtained successfully...")
+        if status_code != 200 or "data" not in resp_json:
+            
             info(helper, all_params, "Error encountered when retrieving page: {page_num}...")
             info(helper, all_params, "Error: ")
             info(helper, all_params,
                  str(resp_json), format_params=False)
             get_next_page = False
+            
         else:
 
             info(helper, all_params,
                  "Parsing page: {page_num} response for assets...")
                 
-            info(helper, all_params,
-                "Getting assets from the page...")
-                
-            info(helper, all_params, str(resp_json),
-                 format_params=False)
+            #info(helper, all_params, str(resp_json),
+            #     format_params=False)
             
+            info(helper, all_params, 
+                "Listing the number of assets on the page obtained...")
             assets_on_page = resp_json['data']['assets']['edges']
             for asset_on_page in assets_on_page:
                 assets.append(asset_on_page)
                 all_params['assets_count'] = len(assets)
+                
             info(helper, all_params, 
                 "Number of assets after page: {page_num} is: {assets_count}")
 
@@ -341,25 +333,46 @@ def collect_events(helper, ew):
                 
             info(helper, all_params, 
                  "Calculating the number of assets in the page...")
-            args['asset_count_per_page'] = len(assets_per_page)
+            all_params['asset_count_per_page'] = len(assets_on_page)
             
             info(helper, all_params, 
-                 "Writing all {asset_count_per_page} assets as an event...")
-            helper.new_event(json.dumps(assets_per_page, indent=4),
+                 "Creating all {asset_count_per_page} assets as an event...")
+            new_event = helper.new_event(json.dumps(assets_on_page, indent=4),
                             index=all_params['assetnote_index'],
-                            sourcetype=all_params['assetnote_assets_sourcetype'])
-            
-            get_next_page = resp_json['data']['assets']['pageInfo']['hasNextPage']
-            if get_next_page:
-                all_params['page_num'] += 1
-                if all_params['limit_pages_returned'] > 0:
-                    if int(all_params['page_num']) > all_params['limit_pages_returned']:
-                        info(helper, all_params, 
-                        "Stopping extraction of more pages as limit of number of pages to get hit...")
-                        get_next_page = False
-                        
+                            sourcetype=all_params['assetnote_sourcetype'],
+                            source=all_params['assetnote_source'])
+                            
             info(helper, all_params, 
-                 "Sleeping for {sleep_time}s before requesting next page...")
-            sleep_time(all_params)
-
+                 "Writing an event to Splunk index: {assetnote_index}, sourcetype: {assetnote_sourcetype}, source: {assetnote_source}...")
+            ew.write_event(new_event)
+            
+            
+            info(helper, all_params, 
+                    "Checking if next page should be obtained...")
+            get_next_page_in_resp = resp_json['data']['assets']['pageInfo']['hasNextPage']
+            if get_next_page_in_resp:
+                
+                info(helper, all_params, 
+                    "Checking if limit of number of pages to return has been hit...")
+                if all_params['limit_pages_returned'] > 0:
+                    if int(all_params['page_num']) >= all_params['limit_pages_returned']:
+                        
+                        info(helper, all_params, 
+                            "Limit hit! Stopping extraction of more pages...")
+                        get_next_page = False
+            else:
+                
+                info(helper, all_params, 
+                    "Stopping as no indication if next page is available...")
+                get_next_page = False
                     
+            if get_next_page:
+                
+                info(helper, all_params, 
+                     "Incrementing page counter...") 
+                all_params['page_num'] += 1
+                
+                info(helper, all_params, 
+                     "Sleeping for {sleep_time}s before requesting next page...")
+                time.sleep(all_params['sleep_time'])
+
