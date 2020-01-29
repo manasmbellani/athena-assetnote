@@ -56,6 +56,25 @@ docker pull splunk/splunk:latest
 docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=Splunk123$" --name splunk splunk/splunk:latest
 ```
 
+### Splunk Add-On Steps
+* Install the Assetnote addon
+
+* Create an index called: `assetnote_index` in Splunk
+
+* Create a sourcetype called: `assetnote:assets:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `json`.
+
+* Now configure a new input data collection in the Assetnote Add-On accessible from *Manage Apps* section
+
+* Call it `assetnote_assets_python_script` and then configure the following: 
+    * Interval: 120
+    * Index: `assetnote_index`
+    * Assetnote Instance: `<instance-name-eg-demo>`
+    * Assetnote API Key: `ugwqx........==`
+
+* Enable the Data Input
+
+* Once completed, input will start coming into index: `assetnote_index` and sourcetype: `assetnote:assets:json`
+
 ## Appendix
 
 ### Notes:
