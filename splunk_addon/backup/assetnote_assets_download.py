@@ -13,10 +13,11 @@ SLEEP_TIMEOUT_PER_PAGE = 2
 LOG_PREFIX = "AssetNote"
 
 """Number of assets to load per page"""
-ASSETS_PER_PAGE_COUNT = 50
+ASSETS_PER_PAGE_COUNT = 20
 
-"""Limit the number of pages returned with assets (for testing)"""
-LIMIT_PAGES_RETURNED = 1
+"""Limit the number of pages returned with assets (for testing.
+If set to 0, then all the pages are returned."""
+LIMIT_PAGES_RETURNED = 0
 
 # Graphql Query template to pull down assets. 
 # {page_count} is set and {page_num} is incremented to pull down the assets 
