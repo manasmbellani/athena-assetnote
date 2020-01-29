@@ -10,6 +10,7 @@ query {{
     exposures(count:{page_count},page:{page_num}) {{
         edges {{
             node {{
+                __typename,
                 ... on BaseExposure {{
                     id,
                     name,
