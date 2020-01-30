@@ -59,11 +59,12 @@ A Splunk Technology add-on for Assetnote has been created using the Splunk Add-O
 
 This Add-On communicates with Assetnote Cloud environment on a regular basis and collects information about all configured assets, and exposures from .
 
-CIM compliance has also been performed for field mappings. 
+CIM compliance has also been performed for field mappings within the Assetnote TA through the Splunk add-on builder app.
 
 ### Pre-requisites
 The pre-requsites for this add-on are as follows:
 * The splunk instance on which the add-on is installed should be able to visit domain: `<assetnote-instance>.assetnotecloud.com` on port 443. So, if the assetnote instance is hosted on `demo.assetnotecloud.com`, the instance should be able to communicate on port 443.
+* The Assetnote API key obtained from the Assetnote UI console.
 
 ### How it works?
 
