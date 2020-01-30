@@ -104,8 +104,11 @@ docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SP
 
 #### Sourcetypes Definition
 
-* Create a sourcetype from `Settings > Source Types` called: `assetnote:assets:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `json`.
-* Create a sourcetype from `Settings > Source Types` called: `assetnote:exposures:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `json`.
+* Create a sourcetype from `Settings > Source Types` called: `assetnote:assets:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `none`.
+* Ensure a new field called `KV_MODE` key is added in `Advanced`, and set to `json` to extract fields on searchtime.
+
+* Create a sourcetype from `Settings > Source Types` called: `assetnote:exposures:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `none`.
+* Ensure a new field called `KV_MODE` key is added in `Advanced`, and set to `json` to extract fields on searchtime.
 
 #### Configuring Assetnote Add-On
 
