@@ -80,7 +80,7 @@ The Add-on will add each page of data retrieved as a single event, but default S
 
 To setup the dev environment, we do this via the Splunk Docker container which will run a Splunk environment locally on our system.
 
-If you already have a live Splunk Instance, you do not have to perform this Splunk dev environment.
+If you already have a live Splunk Instance, you can skip to the next section.
 
 The steps to setup the environment are taken from [here](https://hub.docker.com/r/splunk/splunk/#Quickstart). These are as follows:
 
@@ -95,8 +95,6 @@ docker pull splunk/splunk:latest
 ```
 docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=Splunk123$" --name splunk splunk/splunk:latest
 ```
-
-### Splunk Add-On Steps
 
 #### Install Splunk Add-On
 
@@ -123,7 +121,7 @@ docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SP
 
     * Enter the following details for the form provided:
         * Name: `assetnote_python_assets_script`
-        * Interval: `120`
+        * Interval: `43200`. This is the frequency (in seconds) with which data collection should occur.
         * Index: `assetnote_index`
         * Assetnote Instance: `<instance-name-eg-demo>`
         * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
