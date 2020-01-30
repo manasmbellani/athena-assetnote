@@ -61,6 +61,10 @@ This Add-On communicates with Assetnote Cloud environment on a regular basis and
 
 CIM compliance has also been performed for field mappings. 
 
+### Pre-requisites
+The pre-requsites for this add-on are as follows:
+* The splunk instance on which the add-on is installed should be able to visit domain: `<assetnote-instance>.assetnotecloud.com` on port 443. So, if the assetnote instance is hosted on `demo.assetnotecloud.com`, the instance should be able to communicate on port 443.
+
 ### How it works?
 
 By Default, this Splunk add-on will connect to the Assetnote's GraphQL API to pull down assets and exposures info in JSON fromat on a frequency configured by the operator in a paginated fashion. The maximum page size by default is `20`. 
