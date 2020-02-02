@@ -1,4 +1,3 @@
-#!/bin/bash
 FROM alpine:latest
 MAINTAINER manasbellani
 
