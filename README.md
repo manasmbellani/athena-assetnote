@@ -3,8 +3,6 @@
 ## Introduction
 This project contains scripts to interact with Assetnote portal for asset discovery and exposures/indicators.
 
-It will also be used in near-future to collaborate on building a splunk TA to integrate Assetnote with Splunk.
-
 ## Setup
 
 Note that the instructions below assume that `athena-assetnote` has been git cloned in the `/opt` directory on a Linux host.
