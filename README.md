@@ -3,7 +3,9 @@
 ## Introduction
 This project contains scripts to interact with Assetnote portal for asset discovery and exposures/indicators.
 
-## Setup
+It also contains instructions on how to setup and install the Assetnote TA which uses this script in the background to pull down GraphQL data.
+
+## Setup for using scripts (not Technical add-on)
 
 Note that the instructions below assume that `athena-assetnote` has been git cloned in the `/opt` directory on a Linux host.
 
@@ -93,6 +95,8 @@ docker pull splunk/splunk:latest
 ```
 docker run -v /opt/athena-assetnote:/opt/athena-assetnote -d -p 8000:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=Splunk123$" --name splunk splunk/splunk:latest
 ```
+
+Splunk instance should now be available locally on the host at address: `http://127.0.0.1:8000` with default login `admin:Splunk123$`.
 
 #### Install Splunk Add-On
 
