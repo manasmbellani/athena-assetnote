@@ -323,8 +323,9 @@ def main():
                         help="Output file containing assets listing")
     parser.add_argument("-oe", "--outfile-exposures", default="out-assetnote-exposures.json",
                         help="Output file containing exposures listing as a JSON output")
-    parser.add_argument("-pc", "--page-count", default="20",
-                        help="Number of items to provide per page count")
+    parser.add_argument("-pc", "--page-count", default="30",
+                        help=("Number of items to provide per page count. Note that there is an "
+                             "upper limit of number of assets that can be extracted at once... tested upper limit was 30."))
     parser.add_argument("-lp", "--limit-pages-returned", default=0,
                         help="Limit the number of pages returned. If set to 0 or less, no limit.")
     parser.add_argument("-sa", "--skip-assets", action="store_true",
