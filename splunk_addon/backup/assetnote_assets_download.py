@@ -12,10 +12,6 @@ LOG_PREFIX = "AssetNote"
 """Number of assets to load per page"""
 ASSETS_PER_PAGE_COUNT = 25
 
-"""Limit the number of pages returned with assets (for testing.
-If set to 0, then all the pages are returned."""
-LIMIT_PAGES_RETURNED = 2
-
 # Graphql Query template to pull down assets. 
 # {page_count} is set and {page_num} is incremented to pull down the assets 
 # listing
@@ -247,6 +243,7 @@ def collect_events(helper, ew):
     opt_sleep_time_per_page = int(helper.get_arg('sleep_time_per_page'))
     opt_num_retries_per_page = int(helper.get_arg('num_retries_per_page'))
     opt_backoff_time_per_page_retry = int(helper.get_arg('backoff_time_per_page_retry'))
+    opt_limit_num_pages_returned = int(helper.get_arg('limit_num_pages_returned'))
     
     # define a global parameters set
     all_params = {'assetnote_index': helper.get_output_index(),
@@ -258,7 +255,7 @@ def collect_events(helper, ew):
                   'backoff_time': opt_backoff_time_per_page_retry,
                   'num_retries': opt_num_retries_per_page,
                   'page_count': ASSETS_PER_PAGE_COUNT,
-                  'limit_pages_returned': LIMIT_PAGES_RETURNED}
+                  'limit_pages_returned': opt_limit_num_pages_returned}
     
     # Printing all the current parameters to internal log
     msg = ("assetnote_index: {assetnote_index},"
@@ -302,39 +299,33 @@ def collect_events(helper, ew):
                                                 use_proxy=True)
                 status_code = resp.status_code
                 resp_text = resp.text
-                
-                if status_code == 200:
-                    all_params['page_load_success'] = True
-                else:
-                    all_params['page_load_success'] = False
-                    info(helper, all_params, 
-                        "Sleeping {backoff_time}s before requesting same page...")
-                    time.sleep(all_params['backoff_time'])
                     
             except Exception as e:
                 
                 # Log the exception occurred to log file
                 status_code = -1
+                resp_json = ""
                 err_class = str(e.__class__)
                 raw_err_msg = str(e)
-                err_msg  = "Error in send_http_request for page: {page_num}. "
+                err_msg  = "Error in send_http_request for page: {page_num} for try: {try}. "
                 err_msg += "Error: {}, {}".format(err_class, raw_err_msg)
                 info(helper, all_params, err_msg)
                 
-                # Page was not loaded successfully, so wait for some time before
-                # re-requesting the page
+            # Page was not loaded successfully, so wait for some time before
+            # re-requesting the page
+            if status_code == 200:
+                    all_params['page_load_success'] = True
+            else:
                 all_params['page_load_success'] = False
                 info(helper, all_params, 
-                        "Sleeping {backoff_time}s before requesting same page...")
+                    "Sleeping {backoff_time}s before requesting same page...")
                 time.sleep(all_params['backoff_time'])
+                
             
         info(helper, all_params,
             "Checking if page: {page_num} obtained successfully...")
             
-        if status_code == -1:
-            get_next_page = True
-            
-        elif status_code != 200 or "data" not in resp_text:
+        if (status_code == -1) or (status_code != 200 or "data" not in resp_text):
             
             info(helper, all_params, "Error encountered when retrieving page: {page_num}...")
             info(helper, all_params, "Error: ")
@@ -347,7 +338,7 @@ def collect_events(helper, ew):
             info(helper, all_params,
                  "Parsing page: {page_num} response for assets as JSON...")
                  
-            resp_json = resp.json()    
+            resp_json = resp.json()
             
             info(helper, all_params, 
                 "Listing the number of assets on the page obtained...")
@@ -409,5 +400,4 @@ def collect_events(helper, ew):
                 info(helper, all_params, 
                      "Sleeping for {sleep_time}s before requesting next page...")
                 time.sleep(all_params['sleep_time'])
-
 

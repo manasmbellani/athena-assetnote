@@ -280,4 +280,3 @@ def collect_events(helper, ew):
                      "Sleeping for {sleep_time}s before requesting next page...")
                 time.sleep(all_params['sleep_time'])
 
-

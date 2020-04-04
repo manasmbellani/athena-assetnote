@@ -1,0 +1,4 @@
+event_type_name|event_type_definition|event_type_tags
+assetnote_exposure|(sourcetype=assetnote:exposures:json2)|report vulnerability
+assetnote_ip|(sourcetype=assetnote:assets:json2) index=assetnote_index node.assetType="IP"|web
+assetnote_subdomain|(sourcetype=assetnote:assets:json2) index=assetnote_index node.assetType="SUBDOMAIN"|communicate dns network report resolution vulnerability web
