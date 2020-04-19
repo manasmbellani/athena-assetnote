@@ -141,6 +141,18 @@ If using an outbound proxy to connect to Assetnote API, use the following steps:
     * Set `Remote DNS Resolution` if we wish to perform DNS resolution via the Proxy itself.
     * Press `Save` to save the current settings.
 
+#### Configuring detailed logging (Optional)
+If we wish to debug the Add-on, we can enable `DEBUG` logging, by performing the following steps: 
+    * Go to the *Assetnote Add-on* page from the `Apps` drop-down
+    * Go to the `Configuration` tab and set the following under the `Proxy` tab:
+        * Set `LOGGING` to `DEBUG`
+    * Press `Save`
+
+Logs will then be visible with the following search:
+```
+index=_internal
+```
+
 #### Configuring Assetnote Add-On
 
 * Now visit the *Assetnote Add-On* page from the `Apps` drop-down.
@@ -201,12 +213,6 @@ This section contains misc information useful for development purposes only.
 As a user of the TA, You can ignore this information.
 
 It can be ignored by the consumers of the scripts and add-on.
-
-### Handy Search to see logs when building the Assetenote Add-on
-
-```
-index=_internal sourcetype="*assetnote*"
-```
 
 ### Opening source files via TextEdit
 
