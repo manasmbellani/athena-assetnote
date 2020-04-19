@@ -127,6 +127,20 @@ Splunk instance should now be available locally on the host at address: `http://
 * Create a sourcetype from `Settings > Source Types` called: `assetnote:assetgroups:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `none`.
 * Ensure a new field called `KV_MODE` key is added in `Advanced`, and set to `json` to extract fields on searchtime.
 
+#### Configure Proxy (Optional)
+If using an outbound proxy to connect to Assetnote API, use the following steps:
+
+* Go to the *Assetnote Add-on* page from the `Apps` drop-down
+* Go to the `Configuration` tab and set the following under the `Proxy` tab:
+    * Check `Enable`.
+    * Under the `Proxy Type`, set to `http`, `socks4` or `socks5`.
+    * Set the `host` field to the Proxy server hostname or IP address.
+    * Set the `proxy` port field to the Proxy port.
+    * Set the `Username` field to the Username to use for connecting to Proxy, if an authenticated proxy used.
+    * Set the `Password` field to the Password to use for connecting to Proxy, if an authenticated proxy used.
+    * Set `Remote DNS Resolution` if we wish to perform DNS resolution via the Proxy itself.
+    * Press `Save` to save the current settings.
+
 #### Configuring Assetnote Add-On
 
 * Now visit the *Assetnote Add-On* page from the `Apps` drop-down.
