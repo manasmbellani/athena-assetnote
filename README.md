@@ -139,6 +139,11 @@ Splunk instance should now be available locally on the host at address: `http://
         * Index: `assetnote_index`
         * Assetnote Instance: `<instance-name-eg-demo>`
         * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
+        * Back-Off Time per page retry: Number of seconds to back off when attempting to obtain a page via API call on which error has occurred. By default, 30 seconds.
+        * Num retries Per Page: Number of retries to perform per page in-case of failure. By default, 3 after which the next page is obtained - skipping the current page.
+        * Sleep Time per Page: Number of seconds to sleep after getting a page. By default, 2 seconds.
+        * Limit Number of Pages Returned: Limit the number of pages downloaded for purposes of testing. By default, set to 0 to ensure that ALL pages can be downloaded.
+
 
 * Now `Create a New Input` called `Assetnote Graphql Input Python Script for Exposures Collection`  for collecting Exposures into Splunk.
 
@@ -148,6 +153,10 @@ Splunk instance should now be available locally on the host at address: `http://
       * Index: `assetnote_index`
       * Assetnote Instance: `<instance-name-eg-demo>`
       * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
+      * Back-Off Time per page retry: See explanation above.
+      * Num retries Per Page: See explanation above.
+      * Sleep Time per Page: See explanation above.
+      * Limit Number of Pages Returned: See explanation above.
 
 * Now `Create a New Input` called `Assetnote Graphql Input Python Script for Assetgroups Collection`  for collecting Assetgroups and its assets into Splunk.
 
@@ -157,6 +166,10 @@ Splunk instance should now be available locally on the host at address: `http://
       * Index: `assetnote_index`
       * Assetnote Instance: `<instance-name-eg-demo>`
       * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
+      * Back-Off Time per page retry: See explanation above.
+      * Num retries Per Page: See explanation above.
+      * Sleep Time per Page: See explanation above.
+      * Limit Number of Pages Returned: See explanation above.
 
 * Enable both data inputs 
 
@@ -170,7 +183,8 @@ Splunk instance should now be available locally on the host at address: `http://
 
 ## Appendix
 
-This section contains misc information useful for development purposes. 
+This section contains misc information useful for development purposes only. 
+As a user of the TA, You can ignore this information.
 
 It can be ignored by the consumers of the scripts and add-on.
 
@@ -185,8 +199,6 @@ index=_internal sourcetype="*assetnote*"
 ```
 open -a TextEdit test.txt
 ```
-
-
 
 ### Example of Working GraphQL query
 
