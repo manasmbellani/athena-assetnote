@@ -1,9 +1,18 @@
-# athena-assetnote
+# athena-assetnote: Assetnote App for Splunk
 
 ## Introduction
 This project contains scripts to interact with Assetnote portal for asset discovery and exposures/indicators.
 
 It also contains instructions on how to setup and install the Assetnote TA which uses this script in the background to pull down GraphQL data.
+
+Currently, this add-on pulls the following data from Assetnoe UI console into different Sourcetypes within Splunk:
+* Assets
+    * Subdomain
+    * IPs
+* Exposures
+* Asset Groups
+    * Domains
+    * IPs
 
 ## Setup for using scripts (not Technical add-on)
 
@@ -105,7 +114,7 @@ Splunk instance should now be available locally on the host at address: `http://
 
 #### Index Definition
 
-* Now, create an index called: `assetnote_index` in Splunk from `Settings > Indexes` with default settings.
+* Now, create an index called: `assetnote_index` in Splunk from `Settings > Indexes` with default settings - this can be created in any app although it is recommended to create it within this TA.
 
 #### Sourcetypes Definition
 
@@ -113,6 +122,9 @@ Splunk instance should now be available locally on the host at address: `http://
 * Ensure a new field called `KV_MODE` key is added in `Advanced`, and set to `json` to extract fields on searchtime.
 
 * Create a sourcetype from `Settings > Source Types` called: `assetnote:exposures:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `none`.
+* Ensure a new field called `KV_MODE` key is added in `Advanced`, and set to `json` to extract fields on searchtime.
+
+* Create a sourcetype from `Settings > Source Types` called: `assetnote:assetgroups:json2` in Splunk and set the sourcetype `Indexed Extraction` field to `none`.
 * Ensure a new field called `KV_MODE` key is added in `Advanced`, and set to `json` to extract fields on searchtime.
 
 #### Configuring Assetnote Add-On
@@ -123,7 +135,7 @@ Splunk instance should now be available locally on the host at address: `http://
 
     * Enter the following details for the form provided:
         * Name: `assetnote_python_assets_script`
-        * Interval: `43200`. This is the frequency (in seconds) with which data collection should occur.
+        * Interval: `21600`. This is the frequency (in seconds) with which data collection should occur.
         * Index: `assetnote_index`
         * Assetnote Instance: `<instance-name-eg-demo>`
         * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
@@ -132,14 +144,23 @@ Splunk instance should now be available locally on the host at address: `http://
 
     * Enter the following details for the form provided:
       * Name: `assetnote_python_exposures_script`
-      * Interval: `43200` . This is the frequency (in seconds) with which data collection should occur.
+      * Interval: `21600` . This is the frequency (in seconds) with which data collection should occur.
+      * Index: `assetnote_index`
+      * Assetnote Instance: `<instance-name-eg-demo>`
+      * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
+
+* Now `Create a New Input` called `Assetnote Graphql Input Python Script for Assetgroups Collection`  for collecting Assetgroups and its assets into Splunk.
+
+    * Enter the following details for the form provided:
+      * Name: `assetnote_python_assetgroups_download`
+      * Interval: `21600` . This is the frequency (in seconds) with which data collection should occur.
       * Index: `assetnote_index`
       * Assetnote Instance: `<instance-name-eg-demo>`
       * Assetnote API Key: `ugwqx........==`. This is the API key used for Assetnote.
 
 * Enable both data inputs 
 
-    * Once completed, info will flow into index: `assetnote_index` and sourcetype: `assetnote:assets:json2` for assets and `assetnote:exposures:json2` for exposures.
+    * Once completed, info will flow into index: `assetnote_index` and sourcetype: `assetnote:assets:json2` for assets, `assetnote:exposures:json2` for exposures and `assetnote:assetgroups:json2` for assetgroups and their assets (domains, IP ranges)
 
 * Run the following search to view the assetnote data:
 
@@ -153,10 +174,10 @@ This section contains misc information useful for development purposes.
 
 It can be ignored by the consumers of the scripts and add-on.
 
-### Handy Search when building the Assetenote Add-on
+### Handy Search to see logs when building the Assetenote Add-on
 
 ```
-index=_internal "Assetnote:INFO:"
+index=_internal sourcetype="*assetnote*"
 ```
 
 ### Opening source files via TextEdit
