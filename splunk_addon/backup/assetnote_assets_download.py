@@ -153,7 +153,7 @@ query {{
                         }}
                     }},
                     ... on SubdomainAsset {{
-                       ipAddress,
+                       ipAddress: subdomain,
                        technologies {{
                             edges {{
                                 node {{
