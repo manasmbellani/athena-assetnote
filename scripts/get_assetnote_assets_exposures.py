@@ -26,7 +26,7 @@ query {{
                     lastUpdated,
                     probeId,
                     severity,
-                    severityNormalized,
+                    severityNormalized: severityCustom,
                     signature {{
                         ... on HTTPSignature {{
                             categoryId,
@@ -215,7 +215,7 @@ query {{
                         }}
                     }},
                     ... on SubdomainAsset {{
-                       ipAddress,
+                       ipAddress: subdomain,
                        technologies {{
                             edges {{
                                 node {{

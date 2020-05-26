@@ -35,7 +35,7 @@ query {{
                     lastUpdated,
                     probeId,
                     severity,
-                    severityNormalized,
+                    severityNormalized: severityCustom,
                     signature {{
                         ... on HTTPSignature {{
                             categoryId,
